@@ -1,0 +1,17 @@
+[package]
+name = "datarender"
+version = "0.1.0"
+authors = ["Andrew Toast <toastymod@gmail.com>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+glium = "*"
+glam = "0.8.7"
+text_io = "0.1.8"
+web-view = { version = "0.6.2", features = ["edge"] }
+tinyfiledialogs = "3.3.9"
+ringbuf = "0.2.1"
+lazy_static = "1.4.0"
+byteorder = "1"
