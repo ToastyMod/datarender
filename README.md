@@ -1,7 +1,7 @@
 # datarender
 a visualizer that reads bytes as vertex data.
 
-![](https://cdn.discordapp.com/attachments/613307339411292172/785035872247480340/unknown.png)
+![](https://i.gyazo.com/6f82cbea09912adce681957ec7204508.png)
 
 # usage
 select any ol' file, turn some knobs, mess wid it.
