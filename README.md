@@ -4,7 +4,7 @@ a visualizer that reads bytes as vertex data.
 ![](https://i.gyazo.com/6f82cbea09912adce681957ec7204508.png)
 
 # How it works
-the selected file is read in groups of 3 as float values (a vector3 of floats)
+The selected file is read in groups of 3 as float values (a vector3 of floats)
 those are used as 3D vectors which are popped into a vertex buffer and rendered.
 
 # Why?
