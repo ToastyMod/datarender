@@ -1,12 +1,30 @@
-
 extern crate web_view;
 
 use lazy_static;
 use ringbuf::RingBuffer;
-use std::thread;
+use std::{thread, process};
 use std::time::Duration;
 use tfd::MessageBoxIcon;
 use web_view::*;
+use crate::*;
+use std::sync::atomic::Ordering;
+
+fn kill_proc(webview: &mut WebView<()>){
+    println!("ending process...");
+    webview.exit();
+    process::exit(0x001);
+}
+
+fn trigger_loadfile(){
+    let tmp = match tfd::open_file_dialog("Please choose a file...", "", None) {
+        Some(path) => tfd::message_box_ok("File chosen", &path, MessageBoxIcon::Info),
+        None => tfd::message_box_ok(
+            "Warning",
+            "You didn't choose a file.",
+            MessageBoxIcon::Warning,
+        ),
+    };
+}
 
 fn gettuple(input: Vec<&str>) -> (usize, i64) {
     // outputs backwards for some reason
@@ -20,7 +38,7 @@ fn gettuple(input: Vec<&str>) -> (usize, i64) {
 }
 
 pub fn startgui(mut prod: ringbuf::Producer<[i64; 9]>) -> WVResult {
-    let mut values: [i64; 9] = [0, 0, 0, 0, 0, 0, 0, 0, 0];
+    let mut values: [i64;9] = [0i64;9];
     // 012 = rot
     // 345 = pos
 
@@ -32,42 +50,41 @@ pub fn startgui(mut prod: ringbuf::Producer<[i64; 9]>) -> WVResult {
         .debug(true)
         .user_data(())
         .invoke_handler(|webview, arg| {
+
+            //check if it was a button
+            match arg {
+                "open" => trigger_loadfile(),
+                "exit" => kill_proc(webview),
+                _ => (),
+            };
+
+            //do the thing
             let split: Vec<&str> = arg.rsplitn(2, '|').collect();
-
-            //dbg!(split);
-
             let tmp = gettuple(split);
+            //println!("{}",tmp.1);
+            match tmp.0 {
+                0=>rotx.store(tmp.1,Ordering::SeqCst),
+                1=>roty.store(tmp.1,Ordering::SeqCst),
+                2=>rotz.store(tmp.1,Ordering::SeqCst),
 
-            values[tmp.0] = tmp.1;
+                3=>posx.store(tmp.1,Ordering::SeqCst),
+                4=>posy.store(tmp.1,Ordering::SeqCst),
+                5=>posz.store(tmp.1,Ordering::SeqCst),
 
-            prod.push(values);
+                6=>buf.store(tmp.1,Ordering::SeqCst),
+                7=>ind.store(tmp.1,Ordering::SeqCst),
+                8=>fov.store(tmp.1,Ordering::SeqCst),
+                _ => {}
+            }
 
-            //            match arg {
-            //                "open" => match tfd::open_file_dialog("Please choose a file...", "", None) {
-            //                    Some(path) => tfd::message_box_ok("File chosen", &path, MessageBoxIcon::Info),
-            //                    None => tfd::message_box_ok(
-            //                        "Warning",
-            //                        "You didn't choose a file.",
-            //                        MessageBoxIcon::Warning,
-            //                    ),
-            //                },
-            //                "warning" => tfd::message_box_ok(
-            //                    "Warning",
-            //                    "This is a warning dialog",
-            //                    MessageBoxIcon::Warning,
-            //                ),
-            //                "error" => {
-            //                    tfd::message_box_ok("Error", "This is a error dialog", MessageBoxIcon::Error)
-            //                }
-            //                "exit" => webview.exit(),
-            //                _ => unimplemented!(),
-            //            };
+            //update(values);
+            upd8.store(true, Ordering::SeqCst);
             Ok(())
         })
         .build()?;
 
     let res = webview.run();
-
+    exit_code.store(true, Ordering::Relaxed);
     res
 }
 

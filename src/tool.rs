@@ -40,6 +40,28 @@ pub fn deg2rad(inp: f32) -> f32 {
 
 //eventually simulate symmetry by rotating 180 around the y-axis
 
+pub fn map(value: f32, rg1: (f32, f32), rg2: (f32, f32)) -> f32 {
+    let rg1unit = rg1.1 - rg1.0; // eq 1 unit
+    let rg2unit = rg2.1 - rg2.0; // eq 1 unit
+
+    let scaledif = rg1unit / rg2unit;
+
+    let value_inunits = value / rg1unit; //value in rg1 units
+
+    value_inunits * scaledif
+}
+
+pub fn clamp(input: usize, min: usize, max: usize) -> usize {
+    let mut tmp = 0f32;
+    if input < min {
+        return min;
+    }
+    if input >= max {
+        return max-1;
+    }
+    input
+}
+
 pub fn load_data(loadme: &mut Vec<Vertexd>, path: String) {
     println!("loading file...");
     let mut f = match File::open(path) {
@@ -78,7 +100,7 @@ pub fn load_data(loadme: &mut Vec<Vertexd>, path: String) {
             }
         }
     }
-    println!("fucking done! size loaded: {}", loadme.len());
+    println!("DONE! size loaded: {}", loadme.len());
 }
 
 pub fn build_vb(
@@ -90,12 +112,12 @@ pub fn build_vb(
         glium::VertexBuffer::dynamic(
             &display,
             &[
-                base[oindex+0],
-                base[oindex+1],
-                base[oindex+2],
-                base[oindex+3],
-                base[oindex+4],
-                base[oindex+5],
+                base[clamp(oindex+0,0, base.len())],
+                base[clamp(oindex+1,0, base.len())],
+                base[clamp(oindex+2,0, base.len())],
+                base[clamp(oindex+3,0, base.len())],
+                base[clamp(oindex+4,0, base.len())],
+                base[clamp(oindex+5,0, base.len())],
             ],
         )
         .unwrap()
@@ -103,20 +125,25 @@ pub fn build_vb(
     (display, vb)
 }
 
-
 pub fn rebuild_vb(
     oindex: usize,
     base: &Vec<Vertexd>,
     vb: &mut glium::VertexBuffer<Vertexd>,
 ) {
+    let mut tmp = 0usize;
+    match oindex {
+
+        _ => {}
+    }
+
         vb.write(
             &[
-                base[oindex+0],
-                base[oindex+1],
-                base[oindex+2],
-                base[oindex+3],
-                base[oindex+4],
-                base[oindex+5],
+                base[clamp(oindex+0,0, base.len())],
+                base[clamp(oindex+1,0, base.len())],
+                base[clamp(oindex+2,0, base.len())],
+                base[clamp(oindex+3,0, base.len())],
+                base[clamp(oindex+4,0, base.len())],
+                base[clamp(oindex+5,0, base.len())],
             ],
         );
 }
